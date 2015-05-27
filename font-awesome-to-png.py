@@ -12,7 +12,7 @@
 
 import sys, argparse, re
 from os import path, access, R_OK
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont, ImageDraw, ImageOps
 
 # Support Unicode literals with both Python 2 and 3
 if sys.version < '3':
@@ -553,7 +553,7 @@ class ListUpdateAction(argparse.Action):
         exit(0)
 
 
-def export_icon(icon, size, filename, font, color):
+def export_icon(icon, size, filename, font, color, invert):
     image = Image.new("RGBA", (size, size), color=(0,0,0,0))
 
     draw = ImageDraw.Draw(image)
@@ -587,7 +587,7 @@ def export_icon(icon, size, filename, font, color):
 
     # Create a solid color image and apply the mask
     iconimage = Image.new("RGBA", (size,size), color)
-    iconimage.putalpha(imagemask)
+    iconimage.putalpha(ImageOps.invert(imagemask) if invert else imagemask)
 
     if bbox:
         iconimage = iconimage.crop(bbox)
@@ -643,6 +643,8 @@ if __name__ == '__main__':
             help="The name(s) of the icon(s) to export (or \"ALL\" for all icons)")
     parser.add_argument("--color", type=str, default="black",
             help="Color (HTML color code or name, default: black)")
+    parser.add_argument("--invert", action='store_true',
+            help="The icon becomes transparent and the color becomes the background surrounding the icon")
     parser.add_argument("--filename", type=str,
             help="The name of the output file (it must end with \".png\"). If " +
             "all files are exported, it is used as a prefix.")
@@ -665,6 +667,7 @@ if __name__ == '__main__':
     size = args.size
     font = args.font
     color = args.color
+    invert = args.invert
     retina = args.retina
 
     if args.font:
@@ -710,4 +713,4 @@ if __name__ == '__main__':
         print("Exporting icon \"%s\" as %s (%ix%i pixels)" %
                 (icon, filename, size, size))
 
-        export_icon(icon, size, filename, font, color)
+        export_icon(icon, size, filename, font, color, invert)
