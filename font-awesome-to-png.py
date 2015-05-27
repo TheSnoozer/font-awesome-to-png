@@ -778,6 +778,10 @@ if __name__ == '__main__':
             if icon.startswith("icon-"):
                 icon = icon[5:]
 
+            # Strip the "fa-" prefix, if present
+            if icon.startswith("fa-"):
+                icon = icon[3:]
+
             if icon in icons:
                 selected_icons.append(icon)
             else:
