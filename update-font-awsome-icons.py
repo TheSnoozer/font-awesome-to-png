@@ -14,10 +14,18 @@ else:
 c = urllib.urlopen("https://fortawesome.github.io/Font-Awesome/cheatsheet/").read()
 b = BeautifulSoup.BeautifulSoup(c)
 d = {}
-for i in b.findAll("div"):
-    if 1 == len(i.findAll("i")):
-        fontawsomeChar = i.findAll("i")[0].text
-        if(len(i.contents) > 2 and fontawsomeChar != ""):
+for div in b.findAll("div"):
+    if 1 == len(div.findAll("i")):
+        fontawsomeChar = div.findAll("i")[0].text
+        if(len(div.contents) > 2 and fontawsomeChar != ""):
+            for tag in div.findAll('small'):
+                tag.replaceWith('')
+
+            elements = filter(lambda x: x != '\n' and x != '(alias)', div.findAll(text=True))
+            elements = map(lambda x: x.strip(), elements)
+            # print str(elements) + " ----- " + str(len(elements))
+
             fontawsomeChar = fontawsomeChar.replace("&#xf", "")
-            name = str(i.contents[2].strip()).replace("fa-", "")
-            print '"'+name+'": ' + 'u("\uf' + fontawsomeChar + '"),'
+            name = str(elements[1]).replace("fa-", "")
+
+            print '"'+name+'": ' + 'u("\uf' + fontawsomeChar.replace(";", "") + '"),'
